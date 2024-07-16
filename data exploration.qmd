@@ -1,0 +1,40 @@
+---
+title: "Data exploration"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+```
+```{r}
+los <- read_csv("data/Syllabi-info - Learning Objectives.csv") %>%
+  rename(LearningObjectives = `Learning Objectives`)
+
+```
+Find unique hydro words
+```{r}
+wordstodrop <- c("and", "the", "of", "to", "in", "a", "for", "how", "with", "as", "their", "using", "use", "are", "from", "be",
+                 "by", "that", "an", "on", "at", "different", "some", "these", ".", "able", "both", "each", "or", "such", "ways",
+                 "which")
+
+# Find unique words in the text column
+unique_words <- los %>%
+  mutate(LearningObjectives = str_to_lower(LearningObjectives)) |>
+  mutate(text_column = str_split(LearningObjectives, " ")) %>%
+  unnest(text_column) %>%
+  distinct(text_column) %>%
+  arrange(text_column) %>%
+  filter(!text_column %in% wordstodrop)
+
+
+
+# Count occurrences of each word in the text column
+word_counts <- los %>%
+  mutate(text_column = str_split(LearningObjectives, " ")) %>%
+  unnest(text_column) %>%
+  filter(text_column %in%  unique_words$text_column) %>%
+  count(text_column)
+
+```
+
